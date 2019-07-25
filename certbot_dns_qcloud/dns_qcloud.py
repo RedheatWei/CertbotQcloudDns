@@ -12,7 +12,8 @@ from QcloudApi.qcloudapi import QcloudApi
 
 LOGGER = logging.getLogger(__name__)
 
-domain_end = [".com.cn", ".net.cn", ".com", ".net", ".cn"]
+domain_end = [".com.cn", ".net.cn", ".org.cn", "gov.cn", ".com", ".net", ".cn", ".info", ".top", ".vip", ".ltd", ".xin",
+              ".shop", ".site", ".tech", ".cloud", "cc", ".me", ".link", ".org", ".gov", ".tv", ".live"]
 
 
 def get_domain(domain):
@@ -97,7 +98,7 @@ class _QcloudDnsClient():
                     'method': 'GET',
                     'SignatureMethod': 'HmacSHA1',
                 }
-            self._client = QcloudApi(module, config)
+                self._client = QcloudApi(module, config)
         except IOError:
             LOGGER.error("Qcloud access secret file: %s not found.", secret_key_path)
         except Exception as error:
@@ -151,7 +152,7 @@ class _QcloudDnsClient():
         response = self._client.call(action, action_params)
         record_first_page_result = json.loads(str(response, encoding="utf-8"))
         # 
-        total_record_count = record_first_page_result["data"]["info"]["record_total"]
+        total_record_count = int(record_first_page_result["data"]["info"]["record_total"])
         if total_record_count < PAGE_SIZE:
             result = record_first_page_result["data"]["records"]
             for record in result:
@@ -197,3 +198,7 @@ class _QcloudDnsClient():
         else:
             raise Exception("{} {}-{} record cannot be found.".format(
                 record_name, domain_name, record["value"]))
+
+
+if __name__ == "__main__":
+    _QcloudDnsClient("../dns/certbot/save/qcloud.json").delete_txt_record("easou.info", "123", "111111")
